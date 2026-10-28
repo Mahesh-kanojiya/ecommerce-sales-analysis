@@ -1,0 +1,227 @@
+=== Query 1: Total Revenue ===
+SQL Query:
+SELECT ROUND(SUM(sales), 2) AS total_revenue FROM sales_orders;
+
+Results:
+ total_revenue
+     1520482.4
+
+
+=== Query 2: Total Profit & Margin ===
+SQL Query:
+SELECT ROUND(SUM(profit), 2) AS total_profit,
+                   ROUND((SUM(profit) / SUM(sales)) * 100, 2) AS overall_profit_margin_pct
+            FROM sales_orders;
+
+Results:
+ total_profit  overall_profit_margin_pct
+     262363.9                      17.26
+
+
+=== Query 3: Total Orders ===
+SQL Query:
+SELECT COUNT(DISTINCT order_id) AS total_orders FROM sales_orders;
+
+Results:
+ total_orders
+         1613
+
+
+=== Query 4: Units Sold & Basket Size ===
+SQL Query:
+SELECT SUM(quantity) AS total_units_sold,
+                   ROUND(CAST(SUM(quantity) AS REAL) / COUNT(DISTINCT order_id), 2) AS avg_items_per_order
+            FROM sales_orders;
+
+Results:
+ total_units_sold  avg_items_per_order
+             6748                 4.18
+
+
+=== Query 5: Monthly Sales Trends (Sample) ===
+SQL Query:
+SELECT order_month,
+                   COUNT(DISTINCT order_id) AS orders_count,
+                   ROUND(SUM(sales), 2) AS monthly_sales,
+                   ROUND(SUM(profit), 2) AS monthly_profit,
+                   ROUND((SUM(profit) / SUM(sales)) * 100, 2) AS profit_margin_pct
+            FROM sales_orders
+            GROUP BY order_month
+            ORDER BY order_month ASC
+            LIMIT 6;
+
+Results:
+order_month  orders_count  monthly_sales  monthly_profit  profit_margin_pct
+    2023-01            53       48986.50        11480.00              23.44
+    2023-02            60       60560.30        13013.30              21.49
+    2023-03            71       84724.55        14938.05              17.63
+    2023-04            54       46489.35         9632.35              20.72
+    2023-05            80       69474.50        11524.00              16.59
+    2023-06            54       50035.90        10058.40              20.10
+
+
+=== Query 6: Category-Wise Sales Contribution ===
+SQL Query:
+SELECT category,
+                   COUNT(DISTINCT order_id) AS orders_count,
+                   SUM(quantity) AS total_units,
+                   ROUND(SUM(sales), 2) AS category_sales,
+                   ROUND((SUM(sales) / (SELECT SUM(sales) FROM sales_orders)) * 100, 2) AS sales_contrib_pct
+            FROM sales_orders
+            GROUP BY category
+            ORDER BY category_sales DESC;
+
+Results:
+       category  orders_count  total_units  category_sales  sales_contrib_pct
+     Technology           689         2213       806503.05              53.04
+      Furniture           645         2004       615131.25              40.46
+Office Supplies           772         2531        98848.10               6.50
+
+
+=== Query 7: Category Profit & Profit Margin ===
+SQL Query:
+SELECT category,
+                   ROUND(SUM(sales), 2) AS total_sales,
+                   ROUND(SUM(profit), 2) AS total_profit,
+                   ROUND((SUM(profit) / SUM(sales)) * 100, 2) AS profit_margin_pct,
+                   ROUND(AVG(discount) * 100, 2) AS avg_discount_pct
+            FROM sales_orders
+            GROUP BY category
+            ORDER BY total_profit DESC;
+
+Results:
+       category  total_sales  total_profit  profit_margin_pct  avg_discount_pct
+     Technology    806503.05     197882.05              24.54              6.82
+Office Supplies     98848.10      39271.60              39.73              7.56
+      Furniture    615131.25      25210.25               4.10             12.65
+
+
+=== Query 8: Top 10 Products by Revenue ===
+SQL Query:
+SELECT product_name, category,
+                   SUM(quantity) AS units_sold,
+                   ROUND(SUM(sales), 2) AS total_revenue,
+                   ROUND(SUM(profit), 2) AS total_profit,
+                   ROUND((SUM(profit) / SUM(sales)) * 100, 2) AS margin_pct
+            FROM sales_orders
+            GROUP BY product_name, category
+            ORDER BY total_revenue DESC
+            LIMIT 10;
+
+Results:
+                        product_name   category  units_sold  total_revenue  total_profit  margin_pct
+ HP Color LaserJet Enterprise M555dn Technology         185      156470.95      41770.95       26.70
+            Samsung Galaxy S23 128GB Technology         163      114671.90      26651.90       23.24
+      Steelcase Gesture Office Chair  Furniture         139      110457.50      25667.50       23.24
+ Herman Miller Aeron Ergonomic Chair  Furniture         115      106614.25      23814.25       22.34
+               Apple iPhone 14 128GB Technology         131       96399.35      20419.35       21.18
+                Google Pixel 7 128GB Technology         171       95241.00      23421.00       24.59
+ Chromcraft Rectangular Dining Table  Furniture         157       89622.00     -21848.00      -24.38
+          Sony WH-1000XM5 Headphones Technology         182       65695.35      16555.35       25.20
+      Balt Standing Adjustable Table  Furniture         176       65234.00     -17486.00      -26.81
+Canon imageCLASS D1620 Multifunction Technology         115       65051.40      17901.40       27.52
+
+
+=== Query 9: Bottom 10 Products by Profit (Loss-Makers) ===
+SQL Query:
+SELECT product_name, category,
+                   SUM(quantity) AS units_sold,
+                   ROUND(SUM(sales), 2) AS total_revenue,
+                   ROUND(SUM(profit), 2) AS total_loss,
+                   ROUND(AVG(discount) * 100, 2) AS avg_discount_pct
+            FROM sales_orders
+            GROUP BY product_name, category
+            HAVING SUM(profit) < 0
+            ORDER BY total_loss ASC
+            LIMIT 10;
+
+Results:
+                         product_name  category  units_sold  total_revenue  total_loss  avg_discount_pct
+  Chromcraft Rectangular Dining Table Furniture         157        89622.0    -21848.0             26.45
+       Balt Standing Adjustable Table Furniture         176        65234.0    -17486.0             29.05
+           Bevis Training Table 60x30 Furniture         130        38010.0    -12690.0             31.14
+Bush Furniture Conference Table (Oak) Furniture         110        52910.0    -10890.0             26.46
+
+
+=== Query 10: Regional Sales Performance ===
+SQL Query:
+SELECT region,
+                   COUNT(DISTINCT order_id) AS total_orders,
+                   ROUND(SUM(sales), 2) AS regional_sales,
+                   ROUND(SUM(profit), 2) AS regional_profit,
+                   ROUND((SUM(profit) / SUM(sales)) * 100, 2) AS profit_margin_pct,
+                   ROUND(AVG(discount) * 100, 2) AS avg_discount_pct
+            FROM sales_orders
+            GROUP BY region
+            ORDER BY regional_profit DESC;
+
+Results:
+ region  total_orders  regional_sales  regional_profit  profit_margin_pct  avg_discount_pct
+   West           515        474098.3          90617.8              19.11              6.22
+   East           485        448234.4          87587.4              19.54              6.58
+Central           363        346229.2          43958.7              12.70             17.01
+  South           250        251920.5          40200.0              15.96              7.06
+
+
+=== Query 11: Month-over-Month (MoM) Growth via LAG() ===
+SQL Query:
+WITH MonthlySales AS (
+                SELECT order_month,
+                       ROUND(SUM(sales), 2) AS current_month_sales
+                FROM sales_orders
+                GROUP BY order_month
+            )
+            SELECT order_month,
+                   current_month_sales,
+                   LAG(current_month_sales, 1) OVER (ORDER BY order_month) AS prior_month_sales,
+                   ROUND(
+                       ((current_month_sales - LAG(current_month_sales, 1) OVER (ORDER BY order_month)) /
+                        LAG(current_month_sales, 1) OVER (ORDER BY order_month)) * 100, 2
+                   ) AS mom_growth_pct
+            FROM MonthlySales
+            ORDER BY order_month ASC
+            LIMIT 8;
+
+Results:
+order_month  current_month_sales  prior_month_sales  mom_growth_pct
+    2023-01             48986.50                NaN             NaN
+    2023-02             60560.30           48986.50           23.63
+    2023-03             84724.55           60560.30           39.90
+    2023-04             46489.35           84724.55          -45.13
+    2023-05             69474.50           46489.35           49.44
+    2023-06             50035.90           69474.50          -27.98
+    2023-07             50450.05           50035.90            0.83
+    2023-08             48487.75           50450.05           -3.89
+
+
+=== Query 12: Ranking Sub-Categories within Category via DENSE_RANK() ===
+SQL Query:
+WITH SubCatSummary AS (
+                SELECT category, sub_category,
+                       ROUND(SUM(sales), 2) AS subcat_sales,
+                       ROUND(SUM(profit), 2) AS subcat_profit,
+                       ROUND((SUM(profit) / SUM(sales)) * 100, 2) AS margin_pct
+                FROM sales_orders
+                GROUP BY category, sub_category
+            )
+            SELECT category, sub_category, subcat_sales, subcat_profit, margin_pct,
+                   DENSE_RANK() OVER (PARTITION BY category ORDER BY subcat_profit DESC) AS profit_rank
+            FROM SubCatSummary
+            ORDER BY category, profit_rank;
+
+Results:
+       category sub_category  subcat_sales  subcat_profit  margin_pct  profit_rank
+      Furniture       Chairs     270105.75       62470.75       23.13            1
+      Furniture    Bookcases      73859.50       16109.50       21.81            2
+      Furniture  Furnishings      25390.00        9544.00       37.59            3
+      Furniture       Tables     245776.00      -62914.00      -25.60            4
+Office Supplies      Storage      26245.60       11932.60       45.47            1
+Office Supplies   Appliances      37475.00       10970.00       29.27            2
+Office Supplies        Paper      15660.50        6638.50       42.39            3
+Office Supplies          Art      11824.20        6101.20       51.60            4
+Office Supplies      Binders       7642.80        3629.30       47.49            5
+     Technology       Phones     335308.30       76628.30       22.85            1
+     Technology      Copiers     221522.35       59672.35       26.94            2
+     Technology     Machines     155036.70       32196.70       20.77            3
+     Technology  Accessories      94635.70       29384.70       31.05            4
+

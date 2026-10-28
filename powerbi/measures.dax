@@ -1,0 +1,123 @@
+/*
+================================================================================
+POWER BI DAX MEASURES LIBRARY
+Project: E-Commerce Sales & Business Performance Analysis
+Author: Senior Data Analyst & Power BI Developer
+Target Table: sales_orders (or _AllMeasures table)
+================================================================================
+*/
+
+// ============================================================================
+// 1. CORE VOLUME & REVENUE MEASURES
+// ============================================================================
+
+// Measure 1: Total Revenue (Gross Sales)
+// Business Explanation: Sum of all net transaction dollar sales invoiced to customers.
+Total Revenue = 
+SUM(sales_orders[sales])
+
+
+// Measure 2: Total Cost
+// Business Explanation: Total cost of goods sold (COGS) incurred to supply the products.
+Total Cost = 
+SUM(sales_orders[cost])
+
+
+// Measure 3: Total Profit
+// Business Explanation: Total net earnings generated across all transactions (Sales - Cost).
+Total Profit = 
+SUM(sales_orders[profit])
+
+
+// Measure 4: Total Orders
+// Business Explanation: Counts distinct purchase transactions / invoices.
+// CRITICAL: We use DISTINCTCOUNT(order_id) instead of COUNTROWS because an order 
+// can contain multiple line items!
+Total Orders = 
+DISTINCTCOUNT(sales_orders[order_id])
+
+
+// Measure 5: Total Units Sold
+// Business Explanation: Total count of physical merchandise units shipped.
+Total Units Sold = 
+SUM(sales_orders[quantity])
+
+
+// ============================================================================
+// 2. FINANCIAL RATIOS & MARGINS
+// ============================================================================
+
+// Measure 6: Overall Profit Margin (%)
+// Business Explanation: Ratio of net profit to total revenue.
+// CRITICAL INTERVIEW RULE: Never average the row-level profit margin column!
+// We use DIVIDE() because it handles divide-by-zero safely and returns 0 or blank.
+Profit Margin % = 
+DIVIDE(
+    [Total Profit], 
+    [Total Revenue], 
+    0
+)
+
+
+// Measure 7: Average Order Value (AOV)
+// Business Explanation: Average dollar revenue generated per customer invoice.
+Average Order Value = 
+DIVIDE(
+    [Total Revenue], 
+    [Total Orders], 
+    0
+)
+
+
+// Measure 8: Average Discount Rate (%)
+// Business Explanation: Average promotional discount percentage applied across transactions.
+Average Discount % = 
+AVERAGE(sales_orders[discount])
+
+
+// ============================================================================
+// 3. TIME INTELLIGENCE & MOM GROWTH
+// ============================================================================
+
+// Measure 9: Prior Month Revenue
+// Business Explanation: Calculates revenue for the preceding month using the Date Dimension.
+Prior Month Revenue = 
+CALCULATE(
+    [Total Revenue],
+    DATEADD('DateTable'[Date], -1, MONTH)
+)
+
+
+// Measure 10: Month-over-Month (MoM) Revenue Growth (%)
+// Business Explanation: Percentage rate of sales change from previous month to current month.
+MoM Revenue Growth % = 
+VAR CurrentRevenue = [Total Revenue]
+VAR PreviousRevenue = [Prior Month Revenue]
+RETURN
+DIVIDE(
+    CurrentRevenue - PreviousRevenue,
+    PreviousRevenue,
+    0
+)
+
+
+// ============================================================================
+// 4. DAX CODE FOR DATE TABLE (CALCULATED TABLE)
+// Business Explanation: A continuous calendar dimension table required for proper 
+// Time Intelligence (MoM, YoY) and relationship modeling.
+// ============================================================================
+/*
+DateTable = 
+VAR MinYear = YEAR(MIN(sales_orders[order_date]))
+VAR MaxYear = YEAR(MAX(sales_orders[order_date]))
+RETURN
+ADDCOLUMNS(
+    CALENDAR(DATE(MinYear, 1, 1), DATE(MaxYear, 12, 31)),
+    "Year", YEAR([Date]),
+    "Year Month", FORMAT([Date], "YYYY-MM"),
+    "Month Name", FORMAT([Date], "MMMM"),
+    "Month Number", MONTH([Date]),
+    "Quarter", "Q" & FORMAT([Date], "Q"),
+    "Year Quarter", FORMAT([Date], "YYYY") & " Q" & FORMAT([Date], "Q")
+)
+*/
