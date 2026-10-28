@@ -61,7 +61,6 @@ Raw Data Inspection ──► Automated Python ETL ──► Relational Database
 ecommerce-sales-analysis/
 │
 ├── README.md                           # Master project documentation
-├── INTERVIEW_PREPARATION.md            # 60s pitch, 10 interview Q&As, follow-ups
 ├── requirements.txt                    # Python library dependencies
 ├── .gitignore                          # Standard git ignore rules
 ├── .env.example                        # PostgreSQL database environment template
@@ -69,14 +68,13 @@ ecommerce-sales-analysis/
 ├── data/
 │   ├── DATA_DICTIONARY.md              # Detailed 21-column schema specifications
 │   ├── raw/
-│   │   └── ecommerce_sales_raw.csv     # Raw dataset with controlled data issues
+│   │   └── ecommerce_sales_raw.csv     # Raw dataset with controlled data quality issues
 │   └── processed/
 │       ├── cleaned_sales_data.csv      # Cleaned, standardized dataset (2,480 rows)
 │       └── ecommerce.db                # Embedded SQLite database for zero-config testing
 │
 ├── excel/
-│   ├── ecommerce_sales_analysis.xlsx   # 4-tab styled workbook with formulas & PivotTable
-│   └── EXCEL_WORKFLOW_GUIDE.md         # Step-by-step Excel tutorial and formulas guide
+│   └── ecommerce_sales_analysis.xlsx   # 4-tab styled workbook with formulas & PivotTable
 │
 ├── notebooks/
 │   └── 01_data_cleaning_and_eda.ipynb  # Interactive Jupyter notebook for cleaning & EDA
@@ -97,7 +95,6 @@ ecommerce-sales-analysis/
 │
 ├── powerbi/
 │   ├── measures.dax                    # Production DAX measures with formula explanations
-│   ├── dashboard_instructions.md       # Canvas layout, palette, and build walkthrough
 │   └── dashboard_preview.png           # High-resolution executive dashboard mockup
 │
 └── reports/
@@ -178,10 +175,11 @@ python python/reconcile_metrics.py
 ```
 *Expected Output:* Displays the exact match matrix confirming zero discrepancy across Python, SQL, Excel, and Power BI.
 
-### Step 6: Build the Power BI Dashboard
+### Step 6: Power BI Dashboard & Visuals
 1. Open Power BI Desktop.
-2. Follow the detailed build instructions in [`powerbi/dashboard_instructions.md`](file:///c:/Users/mahes/OneDrive/Desktop/ecommerce-sales-analysis/powerbi/dashboard_instructions.md).
-3. Copy DAX measures directly from [`powerbi/measures.dax`](file:///c:/Users/mahes/OneDrive/Desktop/ecommerce-sales-analysis/powerbi/measures.dax).
+2. Ingest `data/processed/cleaned_sales_data.csv` (or connect to PostgreSQL).
+3. The production-ready DAX measures are documented in [`powerbi/measures.dax`](file:///c:/Users/mahes/OneDrive/Desktop/ecommerce-sales-analysis/powerbi/measures.dax).
+4. View the dashboard layout design reference in [`powerbi/dashboard_preview.png`](file:///c:/Users/mahes/OneDrive/Desktop/ecommerce-sales-analysis/powerbi/dashboard_preview.png).
 
 ---
 
@@ -194,8 +192,8 @@ python python/reconcile_metrics.py
 
 ---
 
-## 8. Author & Interview Readiness
+## 8. Author & License Information
 
-- **Author:** Fresher Data Analyst Portfolio
-- **Interview Guide:** Read [`INTERVIEW_PREPARATION.md`](file:///c:/Users/mahes/OneDrive/Desktop/ecommerce-sales-analysis/INTERVIEW_PREPARATION.md) for the 60-second pitch, tricky follow-up questions, and sample interview answers.
-- **Data License:** Curated synthetic dataset modeled on the Global Superstore benchmark schema under Creative Commons CC-BY 4.0.
+- **Project:** Retail E-Commerce Sales & Business Performance Analytics Portfolio
+- **Author:** Data Analyst Portfolio
+- **Data License:** Curated synthetic benchmark dataset modeled on the Global Superstore retail schema under Creative Commons CC-BY 4.0.
